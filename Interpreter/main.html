@@ -1,0 +1,38 @@
+<html>
+<head>
+<style>
+
+</style>
+  
+<title>Befunge Interpreter</title>
+  
+<script src='interpreter.js'></script>
+<script src='interfaces/eventlistener.js'></script>
+  
+</head>
+<body>
+
+
+
+
+<script>
+(function(){
+  
+  window.addEventListener('load', Init);
+  function Init(){
+    var interpreter = new Interpreter('64+"!dlroW ,olleH">:#,_@');
+    interpreter.addEventListener('step', OnStep);
+    interpreter.run(100);
+  }
+  
+  function OnStep(event){
+    var interpreter = event.target;
+    interpreter.getConsole();
+    interpreter.getSource();
+    interpreter.getExecutedSource();
+  }
+  
+})();
+</script>
+</body>
+</html>
