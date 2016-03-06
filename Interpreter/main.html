@@ -1,11 +1,30 @@
 <html>
 <head>
 <style>
-
+body{
+  margin:0px;
+  padding:0px;
+}
+.pre{
+	white-space: pre;
+	word-wrap: break-word;
+	word-break: break-all;
+  
+  font-family:monospace;
+  
+  padding:20px;
+}
+.source{
+  background:rgb(245,245,245);
+  border-bottom:1px solid rgb(200,200,200);
+}
+span{
+  background:rgb(51,51,51);
+}
 </style>
-  
+
 <title>Befunge Interpreter</title>
-  
+
 <script src='interpreter.js'></script>
 <script src='interfaces/eventlistener.js'></script>
   
@@ -13,30 +32,51 @@
 <body>
 
 
+<div class='pre source'></div>
+<div class='pre output'></div>
 
 
 <script>
 (function(){
   var code = [
-    '>87*70p1.@'
+    'v                                        ',
+    '0   v "This is the first line  "\\      < ',
+    '    v "This is the second line "\\     <  ',
+    '    v "This is the third line  "\\    <   ',
+    '    v "This is the fourth line "\\   <    ',
+    '    v "This is the fifth line  "\\  <     ',
+    '   >v                          @  _^     ',
+    '    :                          >4-^      ',
+    '    5                          ^ :_ ^    ',
+    '    2                          >3-^      ',
+    '    *                          ^ :_  ^   ',
+    '   ,-                          >2-^      ',
+    '   ^_v                         ^ :_   ^  ',
+    '     ,                         >1-^      ',
+    '     >1+v                      ^ :_    ^ ',
+    '>       >                52*\\  :0-^      '
   ];
   
   window.addEventListener('load', Init);
   function Init(){
     var interpreter = new Interpreter(code.join('\n'));
     interpreter.addEventListener('step', OnStep);
-    interpreter.run();
-    console.log(interpreter.getStack());
-    console.log(interpreter.getConsole());
-    console.log(interpreter.getSource());
-    console.log(interpreter.getExecutedSource());
+    interpreter.run(5);
+    // console.log(interpreter.getStack());
+    // console.log(interpreter.getConsole());
+    // console.log(interpreter.getSource());
+    // console.log(interpreter.getExecutedSource());
   }
   
   function OnStep(event){
     var interpreter = event.target;
-    interpreter.getConsole();
-    interpreter.getSource();
-    interpreter.getExecutedSource();
+    var source = interpreter.getExecutedSource().split('\n');
+    var loc = interpreter.getLocation();
+    var char = '\<span>' + source[loc.y][loc.x] + '\</span>';
+    source[loc.y] = source[loc.y].slice(0, loc.x) + char + source[loc.y].slice(loc.x + 1);
+    document.querySelector('.source').innerHTML = source.join('\n');
+    
+    document.querySelector('.output').innerHTML = interpreter.getConsole();
   }
   
 })();
