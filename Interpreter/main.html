@@ -20,10 +20,10 @@
   
   window.addEventListener('load', Init);
   function Init(){
-    // var interpreter = new Interpreter('64+"!dlroW ,olleH">:#,_@');
-    var interpreter = new Interpreter('  4 ');
+    var interpreter = new Interpreter('64+"!dlroW ,olleH">:#,_@');
     interpreter.addEventListener('step', OnStep);
     // interpreter.run(100);
+    window.interpreter = interpreter;
   }
   
   function OnStep(event){

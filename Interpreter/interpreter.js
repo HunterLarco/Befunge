@@ -8,11 +8,13 @@
     var executedSource;
     var printed = '';
     var stepInterval;
+    var stack = [];
     
     
     self.getSource = GetSource;
     self.getExecutedSource = GetExecutedSource;
     self.getConsole = GetConsole;
+    self.getStack = GetStack;
     
     self.run = Run;
     self.stop = Stop;
@@ -28,10 +30,13 @@
     function GetConsole(){
       return printed;
     }
+    function GetStack(){
+      return stack.concat([]);
+    }
     
     function Run(delay){
       if(typeof delay == 'number') delay = Math.max(0, delay);
-      else delay = 100;
+      else delay = 0;
       stepInterval = setInterval(Step, delay);
     }
     function Stop(){
@@ -39,7 +44,7 @@
     }
     function Step(){
       self.triggerEvent('step', { target: self });
-      SwitchExecution();
+      Execute();
     }
     
     
@@ -50,6 +55,9 @@
     
     var xSource = {};
     var ySource = {};
+    
+    var inString = false;
+    var inIgnore = false;
     
     
     function Setup(){
@@ -78,6 +86,7 @@
       return HasCommand(x, y)
     }
     function HasCommand(x, y){
+      if(inString) return true;
       var current = GetCommand(x, y);
       return current != null && current != undefined && current != '' && current != ' ';
     }
@@ -107,6 +116,11 @@
       return next;
     }
     
+    function PopStack(){
+      if(stack.length == 0) return 0;
+      return stack.pop();
+    }
+    
     function LocateNextCommand(){
       var next = MoveFromCurrentInDirection();
       while(!HasCommand(next.x, next.y)){
@@ -116,8 +130,162 @@
       y = next.y;
     }
     
-    function SwitchExecution(){
-      // var command = 
+    function Execute(){
+      var command = GetCurrentCommand();
+      
+      if(inIgnore){
+        if(command == ';') TriggerIgnore();
+        return LocateNextCommand();
+      }
+      
+      if(inString){
+        if(command == '"') TriggerString();
+        else PushToStack(command.charCodeAt(0));
+        return LocateNextCommand();
+      }
+        
+      switch(command){
+        case '+' : DoPlus();     break;
+        case '-' : DoMinus();    break;
+        case '*' : DoMultiply(); break;
+        case '/' : DoDivide();   break;
+        case '%' : DoModulus();  break;
+        case '!' : DoNot();      break;
+        case '`' : DoCompare();  break;
+        case '>' : ChangeDirection(DIRECTIONS.right); break;
+        case '<' : ChangeDirection(DIRECTIONS.left);  break;
+        case 'v' : ChangeDirection(DIRECTIONS.down);  break;
+        case '^' : ChangeDirection(DIRECTIONS.up);    break;
+        case '?' : ChangeRandomDirection();          break;
+        case '_' : HorizontalLogicGate(); break;
+        case '|' : VerticalLogicGate();   break;
+        case '"' : TriggerString();       break;
+        case ':' : DuplicateTopOfStack(); break;
+        case '\\': SwapTopOfStack();      break;
+        case '$' : PopTopOfStack();       break;
+        case '.' : OutputInteger();   break;
+        case ',' : OutputCharacter(); break;
+        case '#' : SkipCommand(); break;
+        case 'g' : break;
+        case 'p' : break;
+        case ';' : TriggerIgnore(); break;
+        case '@' : Stop(); return;  break;
+        case '0' : PushToStack(0);  break;
+        case '1' : PushToStack(1);  break;
+        case '2' : PushToStack(2);  break;
+        case '3' : PushToStack(3);  break;
+        case '4' : PushToStack(4);  break;
+        case '5' : PushToStack(5);  break;
+        case '6' : PushToStack(6);  break;
+        case '7' : PushToStack(7);  break;
+        case '8' : PushToStack(8);  break;
+        case '9' : PushToStack(9);  break;
+        default:
+          Stop();
+          throw 'Unknown Command';
+      }
+      
+      LocateNextCommand();
+    }
+    
+    function DoPlus(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(a + b);
+    }
+    function DoMinus(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(b - a);
+    }
+    function DoMultiply(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(b * a);
+    }
+    function DoDivide(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(Math.round(b / a));
+    }
+    function DoModulus(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(b % a);
+    }
+    function DoNot(){
+      var a = PopStack();
+      stack.push(a == 0 ? 1 : 0);
+    }
+    function DoCompare(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(b > a ? 1 : 0);
+    }
+    
+    function TriggerString(){
+      if(inIgnore) return;
+      inString = !inString;
+    }
+    function TriggerIgnore(){
+      if(inString) return;
+      inIgnore = !inIgnore;
+    }
+    
+    function ChangeDirection(dir){
+      direction = dir;
+    }
+    function ChangeRandomDirection(){
+      switch(Math.floor(Math.random()*4)){
+        case 0: ChangeDirection(DIRECTION.right); break;
+        case 1: ChangeDirection(DIRECTION.left);  break;
+        case 2: ChangeDirection(DIRECTION.down);  break;
+        case 3: ChangeDirection(DIRECTION.up);    break;
+      }
+    }
+    
+    function HorizontalLogicGate(){
+      var a = PopStack();
+      if(a == 0) ChangeDirection(DIRECTIONS.right);
+      else ChangeDirection(DIRECTIONS.left);
+    }
+    function VerticalLogicGate(){
+      var a = PopStack();
+      if(a == 0) ChangeDirection(DIRECTIONS.down);
+      else ChangeDirection(DIRECTIONS.up);
+    }
+    
+    function OutputInteger(){
+      var a = PopStack();
+      printed += a;
+    }
+    function OutputCharacter(){
+      var a = PopStack();
+      printed += String.fromCharCode(a);
+    }
+    
+    function SkipCommand(){
+      MoveFromCurrentInDirection();
+      LocateNextCommand();
+    }
+    
+    function DuplicateTopOfStack(){
+      var a = PopStack();
+      stack.push(a);
+      stack.push(a);
+    }
+    function SwapTopOfStack(){
+      var a = PopStack();
+      var b = PopStack();
+      stack.push(a);
+      stack.push(b);
+    }
+    function PopTopOfStack(){
+      PopStack();
+    }
+    
+    function PushToStack(number){
+      stack.push(number);
     }
     
     
