@@ -183,8 +183,8 @@
         case '.' : OutputInteger();   break;
         case ',' : OutputCharacter(); break;
         case '#' : SkipCommand(); break;
-        case 'g' : break;
-        case 'p' : break;
+        case 'g' : ReadSource();  break;
+        case 'p' : WriteSource(); break;
         case ';' : TriggerIgnore(); break;
         case '@' : Stop(); return;  break;
         case '0' : PushToStack(0);  break;
@@ -285,6 +285,34 @@
       var next = MoveOneInCurrentDirection();
       x = next.x;
       y = next.y;
+    }
+    
+    function ReadSource(){
+      var y = PopStack();
+      var x = PopStack();
+      if(HasCommand(x, y))
+        stack.push(GetCommand(x, y).charCodeAt(0));
+      else
+        stack.push(32);
+    }
+    function WriteSource(){
+      var y = PopStack();
+      var x = PopStack();
+      var value = PopStack();
+      var command = String.fromCharCode(value);
+      
+      var source = executedSource.split('\n');
+      while(y >= source.length) source.push('');
+      while(x >= source[y].length) source[y] += ' ';
+      source[y] = source[y].slice(0,x) + command + source[y].slice(x+1);
+      
+      if(!xSource[x]) xSource[x] = [];
+      xSource[x][y] = command;
+      
+      if(!ySource[y]) ySource[y] = [];
+      ySource[y][x] = command;
+      
+      executedSource = source.join('\n');
     }
     
     function DuplicateTopOfStack(){
