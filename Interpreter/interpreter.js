@@ -9,12 +9,14 @@
     var printed = '';
     var stepInterval;
     var stack = [];
+    var running = true;
     
     
     self.getSource = GetSource;
     self.getExecutedSource = GetExecutedSource;
     self.getConsole = GetConsole;
     self.getStack = GetStack;
+    self.getLocation = GetLocation;
     
     self.run = Run;
     self.stop = Stop;
@@ -33,13 +35,22 @@
     function GetStack(){
       return stack.concat([]);
     }
+    function GetLocation(){
+      return { x:x, y:y };
+    }
     
     function Run(delay){
-      if(typeof delay == 'number') delay = Math.max(0, delay);
-      else delay = 0;
-      stepInterval = setInterval(Step, delay);
+      running = true;
+      if(typeof delay == 'number'){
+        delay = Math.max(0, delay);
+        stepInterval = setInterval(Step, delay);
+      }else{
+        while(running)
+          Step();
+      }
     }
     function Stop(){
+      running = false;
       clearInterval(stepInterval);
     }
     function Step(){
