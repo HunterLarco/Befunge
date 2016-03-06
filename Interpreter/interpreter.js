@@ -21,6 +21,7 @@
     self.run = Run;
     self.stop = Stop;
     self.step = Step;
+    self.reset = Reset;
     
     
     function GetSource(){
@@ -56,6 +57,18 @@
     function Step(){
       self.triggerEvent('step', { target: self });
       Execute();
+    }
+    function Reset(){
+      Stop();
+      executedSource = source;
+      printed = '';
+      x = 0;
+      y = 0;
+      direction = DIRECTIONS.right;
+      inString = false;
+      inIgnore = false;
+      stack = [];
+      Setup();
     }
     
     

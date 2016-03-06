@@ -13,13 +13,19 @@ body{
   font-family:monospace;
   
   padding:20px;
+  font-size:16px;
 }
 .source{
   background:rgb(245,245,245);
   border-bottom:1px solid rgb(200,200,200);
 }
-span{
-  background:rgb(51,51,51);
+span.active{
+  background:rgb(51,51,51) !important;
+  color:rgb(245,245,245) !important;
+}
+
+span:nth-child(2n+1){
+  background:rgb(220,220,220);
 }
 </style>
 
@@ -39,29 +45,24 @@ span{
 <script>
 (function(){
   var code = [
-    'v                                        ',
-    '0   v "This is the first line  "\\      < ',
-    '    v "This is the second line "\\     <  ',
-    '    v "This is the third line  "\\    <   ',
-    '    v "This is the fourth line "\\   <    ',
-    '    v "This is the fifth line  "\\  <     ',
-    '   >v                          @  _^     ',
-    '    :                          >4-^      ',
-    '    5                          ^ :_ ^    ',
-    '    2                          >3-^      ',
-    '    *                          ^ :_  ^   ',
-    '   ,-                          >2-^      ',
-    '   ^_v                         ^ :_   ^  ',
-    '     ,                         >1-^      ',
-    '     >1+v                      ^ :_    ^ ',
-    '>       >                52*\\  :0-^      '
+    'v  >v      <  "This is the fifth line  "\\  ;@  _#;<',
+    '0   :      ^                               ;>4-^   ',
+    '    5      ^  "This is the fourth line "\\  ;^ :_#;<',
+    '    2      ^                               ;>3-^   ',
+    '    *      ^  "This is the third line  "\\  ;^ :_#;<',
+    '   ,-      ^                               ;>2-^   ',
+    '   ^_v     ^  "This is the second line "\\  ;^ :_#;<',
+    '     ,     ^                               ;>1-^   ',
+    '     >1+v  ^  "This is the first line  "\\  ;^ :_#;<',
+    '>       >                            52*\\   :0-^   '
   ];
   
   window.addEventListener('load', Init);
   function Init(){
     var interpreter = new Interpreter(code.join('\n'));
     interpreter.addEventListener('step', OnStep);
-    interpreter.run(5);
+    // interpreter.run(15);
+    window.interpreter = interpreter;
     // console.log(interpreter.getStack());
     // console.log(interpreter.getConsole());
     // console.log(interpreter.getSource());
@@ -72,10 +73,22 @@ span{
     var interpreter = event.target;
     var source = interpreter.getExecutedSource().split('\n');
     var loc = interpreter.getLocation();
-    var char = '\<span>' + source[loc.y][loc.x] + '\</span>';
-    source[loc.y] = source[loc.y].slice(0, loc.x) + char + source[loc.y].slice(loc.x + 1);
-    document.querySelector('.source').innerHTML = source.join('\n');
     
+    var newSource = '';
+    
+    for(var y=0; y<source.length; y++){
+      var line = source[y];
+      for(var x=0; x<line.length; x++){
+        var char = line[x];
+        if(loc.x == x && loc.y == y)
+          newSource += '\<span class="active">' + char + '\</span>';
+        else
+          newSource += '\<span>' + char + '\</span>';
+      }
+      newSource += '\n';
+    }
+    
+    document.querySelector('.source').innerHTML = newSource.slice(0, -1);
     document.querySelector('.output').innerHTML = interpreter.getConsole();
   }
   
