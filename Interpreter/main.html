@@ -1,0 +1,45 @@
+<html>
+<head>
+<style>
+
+</style>
+  
+<title>Befunge Interpreter</title>
+  
+<script src='interpreter.js'></script>
+<script src='interfaces/eventlistener.js'></script>
+  
+</head>
+<body>
+
+
+
+
+<script>
+(function(){
+  var code = [
+    '>87*70p1.@'
+  ];
+  
+  window.addEventListener('load', Init);
+  function Init(){
+    var interpreter = new Interpreter(code.join('\n'));
+    interpreter.addEventListener('step', OnStep);
+    interpreter.run();
+    console.log(interpreter.getStack());
+    console.log(interpreter.getConsole());
+    console.log(interpreter.getSource());
+    console.log(interpreter.getExecutedSource());
+  }
+  
+  function OnStep(event){
+    var interpreter = event.target;
+    interpreter.getConsole();
+    interpreter.getSource();
+    interpreter.getExecutedSource();
+  }
+  
+})();
+</script>
+</body>
+</html>
