@@ -17,32 +17,18 @@
 
 <script>
 (function(){
-  
   var code = [
-    'v                                        ',
-    '0   v "This is the first line  "\\      < ',
-    '    v "This is the second line "\\     <  ',
-    '    v "This is the third line  "\\    <   ',
-    '    v "This is the fourth line "\\   <    ',
-    '    v "This is the fifth line  "\\  <     ',
-    '   >v                          @  _^     ',
-    '    :                          >4-^      ',
-    '    5                          ^ :_ ^    ',
-    '    2                          >3-^      ',
-    '    *                          ^ :_  ^   ',
-    '   ,-                          >2-^      ',
-    '   ^_v                         ^ :_   ^  ',
-    '     ,                         >1-^      ',
-    '     >1+v                      ^ :_    ^ ',
-    '>       >                52*\\  :0-^      '
+    '01->1# +# :# 0# g# ,# :# 5# 8# *# 4# +# -# _@'
   ];
   
   window.addEventListener('load', Init);
   function Init(){
     var interpreter = new Interpreter(code.join('\n'));
     interpreter.addEventListener('step', OnStep);
-    // interpreter.run(100);
-    window.interpreter = interpreter;
+    interpreter.run();
+    console.log(interpreter.getStack());
+    console.log(interpreter.getConsole());
+    console.log(interpreter.getExecutedSource());
   }
   
   function OnStep(event){

@@ -109,6 +109,12 @@
       return xSource[x][y];
     }
     
+    function MoveOneInCurrentDirection(){
+      return {
+        x: x + (direction == DIRECTIONS.right ? 1 : (direction == DIRECTIONS.left ? -1 : 0)),
+        y: y + (direction == DIRECTIONS.down ? 1 : (direction == DIRECTIONS.up ? -1 : 0))
+      }
+    }
     function MoveFromCurrentInDirection(){
       return MoveInDirection(x, y);
     }
@@ -276,8 +282,9 @@
     }
     
     function SkipCommand(){
-      MoveFromCurrentInDirection();
-      LocateNextCommand();
+      var next = MoveOneInCurrentDirection();
+      x = next.x;
+      y = next.y;
     }
     
     function DuplicateTopOfStack(){
